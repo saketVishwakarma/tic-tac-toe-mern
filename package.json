@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://saketvishwakarma.github.io/tic-tac-toe-mern",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
