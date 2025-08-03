@@ -1,0 +1,96 @@
+name: terraform setup -plan, apply, and destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'enter "plan", "apply", or "destroy"'
+        required: true
+        default: ''
+        type : choice
+        options: ['plan', 'apply', 'destroy']
+      confirm_destroy:
+        description: 'confirm destroy action (type "yes")'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  plan-apply-destroy:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/tictactoe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up terraform
+        uses: hashicorp/setup-terraform@v2
+      - name : Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Terraform Init
+        run: terraform init 
+        env:
+          credential: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Terraform Validate
+        run: terraform validate
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        env:
+          credential: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: terraform apply -auto-approve tfplan
+        env:
+          credential: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.action == 'destroy' && github.event.inputs.confirm_destroy == 'yes' }}
+        run: terraform destroy -auto-approve  
+        env:
+          credential: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Generate Terraform Plan JSON
+        run: terraform plan -out=tfplan.binary && terraform show -json tfplan.binary > plan.json
+
+      - name: Run Infracost breakdown
+        run: |
+          infracost breakdown --path plan.json \
+                               --format html \
+                               --out-file infracost-report.html
+
+      - name: Upload Infracost Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: infracost-cost-report
+          path: terraform/infracost-report.html
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Scan Terraform plan with Checkov
+        run: |
+          terraform plan -out=tfplan.binary
+          terraform show -json tfplan.binary > tfplan.json
+          checkov --config-file tfplan.json --framework terraform_plan --output json > checkov-plan-report.json
+        env:
+            Azure_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+            Azure_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            Azure_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+            oidc: true
+
+      - name: Upload Checkov Report
+        uses: actions/upload-artifact@v4
+        with:
+            name: terraform-checkov-plan-report
+            path: checkov-plan-report.json
+
+
+      
