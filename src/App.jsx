@@ -31,9 +31,9 @@ export default function App() {
   const [difficulty, setDifficulty] = useState('easy');
   const [darkMode, setDarkMode] = useState(false);
 
-  const clickSound = useRef(new Audio('/sounds/click.mp3'));
-  const winSound = useRef(new Audio('/sounds/win.mp3'));
-  const resetSound = useRef(new Audio('/sounds/reset.mp3'));
+  const clickSound = useRef(new Audio('/sounds/click.wav'));
+  const winSound = useRef(new Audio('/sounds/win.wav'));
+  const resetSound = useRef(new Audio('/sounds/reset.wav'));
 
   const theme = createTheme({
     palette: {
