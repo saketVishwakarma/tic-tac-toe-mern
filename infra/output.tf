@@ -13,9 +13,11 @@ output "app_url_full" {
 output "instrumentation_key" {
   description = "App Insights instrumentation key"
   value       = module.appinsights.instrumentation_key
+  sensitive= true
 }
 
 output "connection_string" {
   description = "App Insights connection string"
   value       = module.appinsights.connection_string
+  sensitive= true
 }
