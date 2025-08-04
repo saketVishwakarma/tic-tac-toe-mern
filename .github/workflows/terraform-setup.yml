@@ -92,9 +92,6 @@ jobs:
             terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary
             terraform show -json tfplan.binary > plan.json
             infracost breakdown --path plan.json --format html --out-file infracost-report.html
-            echo "Generated Infracost Report:"
-            ls -lh infracost-report.html
-            ls
         env:
             ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
             ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -104,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: infracost-report
-          path: ${{ github.workspace }}/infracost-report.html
+          path: ${{ github.workspace }}/infra/infracost-report.html
       - name: Install Checkov
         run: pip install checkov
 
@@ -123,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
             name: checkov-plan-report
-            path: checkov-plan-report.json
+            path: ${{ github.workspace }}/infra/checkov-plan-report.json
 
 
       
