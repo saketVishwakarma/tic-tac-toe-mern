@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     host: true, 
     port: 3000,
-    allowedHosts: "all",
-  },
+    allowedHosts: ['tictactoe1232.azurewebsites.net'],
+  }
 });
