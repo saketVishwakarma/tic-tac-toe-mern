@@ -62,7 +62,7 @@ jobs:
             -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" \
             -var="app_name=${{ secrets.TF_APPNAME }}" \
             -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" \
-            -var="client_id=${{ secrets.AZURE_CLIENT_ID}}"\
+            -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" \
             -out=tfplan
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
