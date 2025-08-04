@@ -89,7 +89,8 @@ jobs:
 
       - name: Generate Terraform Plan JSON and infracost report
         run: | 
-            terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary && terraform show -json tfplan.binary > plan.json
+            terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary
+            terraform show -json tfplan.binary > plan.json
             infracost breakdown --path plan.json --format html --out-file infracost-report.html
         env:
             ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
