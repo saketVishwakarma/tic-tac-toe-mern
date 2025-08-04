@@ -97,7 +97,11 @@ Run the `cost-estimate.yml` workflow anytime to generate a downloadable artifact
 
 ## 📷 Screenshots
 
-> _(Add screenshots of your game UI and GitHub Action reports here)_
+<img width="887" height="318" alt="Screenshot 2025-08-04 235810" src="https://github.com/user-attachments/assets/942206c1-8b92-4b53-8ea6-1015a856a632" />
+<img width="673" height="269" alt="Screenshot 2025-08-04 235744" src="https://github.com/user-attachments/assets/b28b1d16-668b-4b32-8891-b452eb4a80f0" />
+<img width="530" height="415" alt="image" src="https://github.com/user-attachments/assets/99d9491e-e1d6-4fb2-b1a3-98c9713953d6" />
+<img width="500" height="413" alt="image" src="https://github.com/user-attachments/assets/6df838af-ce45-49eb-ac5c-dc1d64d7c467" />
+
 
 ---
 
