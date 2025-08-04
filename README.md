@@ -24,7 +24,8 @@ A feature-rich, mobile-responsive Tic Tac Toe game built with ReactJS and deploy
 | **Azure App Service** | Host Docker container               |
 | **Terraform** | Provision Azure Infrastructure       |
 | **GitHub Actions** | CI/CD workflows                   |
-| **Trivy** | Security scanning (Docker + Terraform) |
+| **Trivy** | Security scanning (Docker)                 |
+| **checkov** | Security scanning(Terraform)            |
 | **Infracost** | Infra cost estimation                 |
 
 ---
@@ -33,10 +34,10 @@ A feature-rich, mobile-responsive Tic Tac Toe game built with ReactJS and deploy
 
 ```
 root
-├── tictactoe/                  # CRA React app
-├── terraform/                  # Infrastructure as Code
+├── source/                  #  React app
+├── infra/                  # Infrastructure as Code
 ├── .github/workflows/          # CI/CD Pipelines
-├── Dockerfile
+├── Dockerfile 
 └── README.md
 ```
 
@@ -46,11 +47,8 @@ root
 
 | File | Description |
 |------|-------------|
-| `build-push.yml` | Builds Docker image, scans with Trivy, pushes to Docker Hub |
-| `terraform-deploy.yml` | Deploys Azure resources using Terraform |
-| `terraform-destroy.yml` | Destroys infrastructure safely with confirmation |
-| `cost-estimate.yml` | Generates cost estimate using Infracost (artifact only) |
-| `security-scan.yml` | Scans Docker image + Terraform code and uploads artifacts |
+| `docker-build-push.yml` | Builds Docker image, scans with Trivy, pushes to Docker Hub |
+| `terraform-setup.yml` | Ask what steps we need to run like "plan","Apply" and Destroy" also ask if we need security scan of Terraform code and uploads artifacts , generates cost estimate using infracost(artifacts only) |
 
 ---
 
@@ -61,14 +59,13 @@ root
 | `DOCKERHUB_USERNAME`      | Docker Hub username               |
 | `DOCKERHUB_TOKEN`         | Docker Hub access token           |
 | `AZURE_CLIENT_ID`         | Azure SPN client ID               |
-| `AZURE_CLIENT_SECRET`     | Azure SPN secret                  |
 | `AZURE_SUBSCRIPTION_ID`   | Azure subscription ID             |
 | `AZURE_TENANT_ID`         | Azure tenant ID                   |
-| `TF_STATE_RG`             | Azure RG for backend state        |
-| `TF_STATE_STORAGE`        | Storage account for state         |
-| `TF_STATE_CONTAINER`      | State container name              |
-| `TF_STATE_KEY`            | Unique key for this state file    |
 | `INFRACOST_API_KEY`       | API key from infracost.io         |
+| `TF_APPNAME`              | Web app name                      |
+| `TF_RESOURCENAME`          | Resource group name for app service and  web app|
+| `TF_LOCATION`              | Location                           |
+
 
 ---
 
@@ -84,13 +81,14 @@ root
 
 ## 💰 Cost Estimation
 
-Run the `cost-estimate.yml` workflow anytime to generate a downloadable artifact estimating your Azure costs via [Infracost](https://www.infracost.io/).
+give yes in workflow anytime to generate a downloadable artifact estimating your Azure costs via [Infracost](https://www.infracost.io/).
 
 ---
 
 ## 🛡 Security Scanning
 
-- **Trivy** scans Docker images & IaC code on every pipeline
+- **Trivy** scans Docker images
+-  **checkov** scans IAC code 
 - Reports are downloadable as GitHub Action artifacts
 
 ---
@@ -109,7 +107,7 @@ Run the `cost-estimate.yml` workflow anytime to generate a downloadable artifact
 
 **Saket Kumar Vishwakarma**  
 DevOps Engineer | System Engineer @ TCS  
-🇮🇳 India | [LinkedIn](#) *(Add your link here)*
+🇮🇳 India | [LinkedIn](#) *(https://www.linkedin.com/in/saket-vishwakarma13/)
 
 ---
 
