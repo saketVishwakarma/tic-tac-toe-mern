@@ -87,15 +87,15 @@ jobs:
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Generate Terraform Plan JSON
-        run: terraform plan -out=tfplan.binary && terraform show -json tfplan.binary > plan.json
-
-      - name: Run Infracost breakdown
-        run: |
-          infracost breakdown --path plan.json \
-                               --format html \
-                               --out-file infracost-report.html
-
+      - name: Generate Terraform Plan JSON and infracost report
+        run: | 
+            terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary && terraform show -json tfplan.binary > plan.json
+            infracost breakdown --path plan.json --format html --out-file infracost-report.html
+        env:
+            ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+            ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            ARM_USE_OIDC: true
       - name: Upload Infracost Report
         uses: actions/upload-artifact@v4
         with:
@@ -106,7 +106,7 @@ jobs:
 
       - name: Scan Terraform plan with Checkov
         run: |
-          terraform plan -out=tfplan.binary
+          terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary
           terraform show -json tfplan.binary > tfplan.json
           checkov --config-file tfplan.json --framework terraform_plan --output json > checkov-plan-report.json
         env:
