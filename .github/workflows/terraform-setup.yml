@@ -14,6 +14,13 @@ on:
         required: false
         default: ''
         type: string
+      need_security_scan:
+        description: 'do you want to run security scan? (type "yes")'
+        required: false
+        default: ''
+        type: string
+      need_infracost:
+        description: 'do you want to run infracost? (type "yes")' 
 permissions:
   id-token: write
   contents: read
@@ -55,7 +62,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        if: ${{ github.event.inputs.action == 'plan' }} || ${{ github.event.inputs.action == 'apply' }}
+        if: ${{ github.event.inputs.action == 'plan' || github.event.inputs.action == 'apply' }}
         run: |
             terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan
             ls
@@ -93,11 +100,13 @@ jobs:
           ARM_USE_OIDC: true
 
       - name: Setup Infracost
+        if: ${{ github.event.inputs.need_infracost == 'yes' }}
         uses: infracost/actions/setup@v2
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: Generate Terraform Plan JSON and infracost report
+        if: ${{ github.event.inputs.need_infracost == 'yes' }}
         run: | 
             terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary
             terraform show -json tfplan.binary > plan.json
@@ -108,14 +117,17 @@ jobs:
             ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
             ARM_USE_OIDC: true
       - name: Upload Infracost Report
+        if: ${{ github.event.inputs.need_infracost == 'yes' }}
         uses: actions/upload-artifact@v4
         with:
           name: infracost-report
           path: ${{ github.workspace }}/infra/infracost-report.html
       - name: Install Checkov
+        if: ${{ github.event.inputs.need_security_scan == 'yes' }}
         run: pip install checkov
 
       - name: Scan Terraform plan with Checkov
+        if: ${{ github.event.inputs.need_security_scan == 'yes' }}
         run: |
           terraform plan -var="location=${{ secrets.TF_LOCATION }}" -var="tenant_id=${{ secrets.AZURE_TENANT_ID }}" -var="subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID}}" -var="resource_group_name=${{ secrets.TF_RESOURCENAME }}" -var="app_name=${{ secrets.TF_APPNAME }}" -var="dockerhub_username=${{ secrets.DOCKERHUB_USERNAME }}" -var="client_id=${{ secrets.AZURE_CLIENT_ID}}" -out=tfplan.binary
           terraform show -json tfplan.binary > tfplan.json
@@ -127,6 +139,7 @@ jobs:
           ARM_USE_OIDC: true
 
       - name: Upload Checkov Report
+        if: ${{ github.event.inputs.need_security_scan == 'yes' }}
         uses: actions/upload-artifact@v4
         with:
             name: checkov-plan-report
